@@ -827,5 +827,17 @@ async function doChangePw(){
   else { alert('密碼已修改成功！'); closeChangePw(); }
 }
 </script>
+<script>
+function toggleSmallMonkey(btn){
+  var svg=btn.querySelector('svg');
+  var input=btn.closest('div[style*="position:relative"]').querySelector('input');
+  var showing=input.type==='text';
+  input.type=showing?'password':'text';
+  svg.querySelector('.mk-hc').style.display=showing?'':'none';
+  svg.querySelector('.mk-eo').style.display=showing?'none':'';
+  svg.querySelector('.mk-ms').style.display=showing?'none':'';
+  svg.querySelector('.mk-mn').style.display=showing?'':'none';
+}
+</script>
 </body>
 </html>
