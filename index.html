@@ -154,38 +154,6 @@
 </style>
 </head>
 <body>
-<!-- 維護公告 START -->
-<div id="maintenance-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;">
-  <div style="background:#fff;border-radius:16px;padding:32px;max-width:480px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);">
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
-      <div style="background:#fef3c7;border-radius:50%;width:44px;height:44px;display:flex;align-items:center;justify-content:center;">
-        <span style="font-size:22px;">🔧</span>
-      </div>
-      <div>
-        <p style="font-size:16px;font-weight:700;margin:0;">系統維護公告</p>
-        <p style="font-size:13px;color:#64748b;margin:0;">請詳閱以下說明</p>
-      </div>
-    </div>
-    <div style="border-top:1px solid #e2e8f0;padding-top:20px;margin-bottom:24px;">
-      <p style="font-size:14px;line-height:1.8;margin:0;color:#1e293b;">
-        敬愛的用戶您好，<br><br>
-        本系統預計於 <strong style="color:#d97706;">2026年6月27日 00:00</strong> 至 <strong style="color:#d97706;">2026年6月28日 24:00</strong> 進行系統維護作業。<br><br>
-        維護期間將暫時關閉系統資料庫儲存作業，<strong>請勿於此段時間登打或拋轉資料</strong>，造成不便敬請見諒。<br><br>
-        感謝您的配合。
-      </p>
-    </div>
-    <button onclick="document.getElementById('maintenance-modal').style.display='none'" style="width:100%;padding:12px;background:#1e40af;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;">
-      我已閱讀，確認進入系統
-    </button>
-  </div>
-</div>
-<script>
-  if(new Date() > new Date('2026-06-29T00:00:00')){
-    document.getElementById('maintenance-modal').style.display='none';
-  }
-</script>
-<!-- 維護公告 END -->
-
 <div class="page">
 
   <header class="masthead">
@@ -207,7 +175,10 @@
       </div>
       <div class="field">
         <label for="passwordInput">密碼</label>
-        <input type="password" id="passwordInput" autocomplete="current-password" required>
+        <div style="position:relative;">
+          <input type="password" id="passwordInput" autocomplete="current-password" required style="width:100%;padding-right:40px;">
+          <button type="button" onclick="togglePw('passwordInput','eyeIcon1')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#5B6B72;font-size:16px;" id="eyeIcon1">👁</button>
+        </div>
       </div>
       <button type="submit" class="btn" id="loginBtn">登入</button>
       <p class="login-error" id="loginError" hidden></p>
@@ -218,7 +189,35 @@
 
     <div class="user-row">
       <span class="who" id="userInfo"></span>
-      <button class="btn-link" id="logoutBtn" type="button">登出</button>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <button class="btn-link" onclick="openChangePw()" type="button">修改密碼</button>
+        <button class="btn-link" id="logoutBtn" type="button">登出</button>
+      </div>
+    </div>
+
+    <!-- 修改密碼 Modal -->
+    <div id="changePwModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:none;align-items:center;justify-content:center;padding:1rem;">
+      <div style="background:#fff;border-radius:16px;padding:28px;max-width:400px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.3);">
+        <h2 style="margin-bottom:18px;font-size:16px;">🔑 修改密碼</h2>
+        <div class="field" style="margin-bottom:12px;">
+          <label>新密碼</label>
+          <div style="position:relative;">
+            <input type="password" id="newPwInput" placeholder="輸入新密碼" style="width:100%;padding-right:40px;">
+            <button type="button" onclick="togglePw('newPwInput','eyeIcon2')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#5B6B72;font-size:16px;" id="eyeIcon2">👁</button>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:20px;">
+          <label>確認新密碼</label>
+          <div style="position:relative;">
+            <input type="password" id="confirmPwInput" placeholder="再次輸入新密碼" style="width:100%;padding-right:40px;">
+            <button type="button" onclick="togglePw('confirmPwInput','eyeIcon3')" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#5B6B72;font-size:16px;" id="eyeIcon3">👁</button>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;">
+          <button class="btn btn-ghost btn-small" onclick="closeChangePw()">取消</button>
+          <button class="btn btn-small" onclick="doChangePw()" id="changePwBtn">💾 儲存</button>
+        </div>
+      </div>
     </div>
 
     <!-- 上方:看板總覽 + 月份區間篩選 -->
@@ -310,8 +309,8 @@
   // 請把下面兩個值換成你自己 Supabase 專案的設定
   // Supabase 後台 → Settings → API → Project URL / anon public key
   // ============================================================
-  var SUPABASE_URL = "https://bvuygyajzupeqpqfwmgi.supabase.co";
-  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2dXlneWFqenVwZXFwcWZ3bWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNjA5MjQsImV4cCI6MjA5NzczNjkyNH0.zvP-JWgHRWiCKZbqSSU6-uGgx3WHwG0nFxfG8xDhEH8";
+  var SUPABASE_URL = "https://ppmytkolaqxtqcmztxxr.supabase.co";
+  var SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBwbXl0a29sYXF4dHFjbXp0eHhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1MjA5OTAsImV4cCI6MjA5NTA5Njk5MH0.ERyqOCEBsD2rg6i49a7m5IHbxxQ1z7JvAQWqUfOYcto";
   // ============================================================
 
   var ADMIN_EMAIL = "michellechang154@gmail.com";
@@ -668,6 +667,46 @@
   });
 
 })();
+
+// 眼睛圖示切換
+function togglePw(inputId, btnId){
+  var input = document.getElementById(inputId);
+  var btn = document.getElementById(btnId);
+  if(input.type === 'password'){
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+
+// 修改密碼
+function openChangePw(){
+  var modal = document.getElementById('changePwModal');
+  modal.style.display = 'flex';
+  document.getElementById('newPwInput').value = '';
+  document.getElementById('confirmPwInput').value = '';
+}
+function closeChangePw(){
+  document.getElementById('changePwModal').style.display = 'none';
+}
+async function doChangePw(){
+  var newPw = document.getElementById('newPwInput').value;
+  var confirmPw = document.getElementById('confirmPwInput').value;
+  if(!newPw || !confirmPw){ alert('請填寫所有欄位'); return; }
+  if(newPw !== confirmPw){ alert('兩次密碼不一致'); return; }
+  var btn = document.getElementById('changePwBtn');
+  btn.disabled = true; btn.textContent = '儲存中...';
+  var sb2 = window.supabase.createClient(
+    "https://bvuygyajzupeqpqfwmgi.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ2dXlneWFqenVwZXFwcWZ3bWdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIxNjA5MjQsImV4cCI6MjA5NzczNjkyNH0.zvP-JWgHRWiCKZbqSSU6-uGgx3WHwG0nFxfG8xDhEH8"
+  );
+  var { error } = await sb2.auth.updateUser({ password: newPw });
+  btn.disabled = false; btn.textContent = '💾 儲存';
+  if(error){ alert('修改失敗：' + error.message); }
+  else { alert('密碼已修改成功！'); closeChangePw(); }
+}
 </script>
 </body>
 </html>
